@@ -152,12 +152,6 @@ export default function MultiQuizPage() {
     };
   }, [password, router]);
 
-  useEffect(() => {
-    if (quizState?.gamePhase === "waiting") {
-      const interval = setInterval(() => location.reload(), 2000)
-      return () => clearInterval(interval)
-    }
-  }, [quizState?.gamePhase])
 
   const handleAnswerSelect = (answerIndex: number) => {
     if (!canAnswer || selectedAnswer !== null || quizState?.gamePhase !== 'showQuestion') return;

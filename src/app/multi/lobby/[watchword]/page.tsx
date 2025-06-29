@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { socket } from '../../../../lib/socket'
 import Cookies from "js-cookie"
 
-type Member ={
+type Member = {
   id: string;
   name: string;
 }
@@ -34,9 +34,9 @@ export default function LobbyPage() {
     // Cookieからユーザー情報を取得
     const userId = Cookies.get('userId');
     const userName = decodeURIComponent(Cookies.get('userName') || '');
-    
+
     console.log('このルームページの合言葉は...', watchword, 'デコード前の合言葉は...', encodedWatchword);
-    
+
     if (!userId || !userName) {
       // ユーザー情報がない場合はホームページにリダイレクト
       router.push('/');
@@ -47,11 +47,14 @@ export default function LobbyPage() {
     if (!socket.connected) {
       socket.connect();
     }
-    
+
     const handleConnect = () => {
       socket.emit('setUserInfo', { userId, userName });
       // デコードされたパスワードを使用
-      socket.emit('getRoomInfo', { watchword, userId });
+      socket.emit('joinRoom', { watchword, user: { id: userId, name: userName } });
+
+      setTimeout(() =>
+        socket.emit('getRoomInfo', { watchword, userId }), 300);
     };
 
     if (socket.connected) {
@@ -66,7 +69,7 @@ export default function LobbyPage() {
       setRoomInfo(data);
       setIsHost(userId === data.host);
     });
-    
+
     socket.on('gameStarted', () => {
       console.log('ゲームを開始するので、ゲームページに遷移します。');
       // ゲームページに遷移
@@ -116,7 +119,7 @@ export default function LobbyPage() {
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
-  
+
   if (!roomInfo) {
     return <div>Loading...</div>;
   }
